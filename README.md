@@ -23,22 +23,29 @@ On launch they pick a role: **Investor** or **Trader**. Tap **Switch** (top-righ
 - **Backers**: who's backing you and how much.
 - **Earnings**: your profit split shown exactly — gross profit, investors' share, **your 17.5% carry**, and **Arena's 27.5% cut** — with a visual split bar.
 
-## Deploy to Vercel (pick one)
-**A · Drag & drop (easiest, ~1 min)**
-1. Go to https://vercel.com/new
-2. Drag this whole `arena-demo` folder onto the page.
-3. Name the project **`mpesa-arena-demo`** (important — see QR note) and click **Deploy**.
-4. Your live URL will be **https://mpesa-arena-demo.vercel.app**
+## Deploy on Netlify
+This is a static site (`index.html` at the root), so there is **no build step**.
 
-**B · Vercel CLI**
-```
-npm i -g vercel
-cd arena-demo
-vercel --prod        # when asked, set project name to: mpesa-arena-demo
-```
+**Via GitHub (recommended):**
+1. Push this repo to GitHub (see below).
+2. On https://app.netlify.com → **Add new site → Import an existing project → GitHub** → pick the **Arena** repo.
+3. Build command: **(leave empty)** · Publish directory: **`.`** (the included `netlify.toml` already sets this).
+4. **Deploy**. Then **Site settings → Change site name → `mpesa-arena-demo`** so the URL becomes `https://mpesa-arena-demo.netlify.app` (matches the QR).
 
-**C · GitHub**
-Push this folder to a repo, then "Import Project" at vercel.com/new. No build settings needed (static site).
+**Or drag-and-drop:** zip/extract this folder and drop it on https://app.netlify.com/drop.
+
+## Push to GitHub
+```
+cd /Users/user1/Documents/WORK/SOFTWARE/ARENA
+unzip -o MPESA_Arena_Site.zip
+git init
+git add .
+git commit -m "M-PESA Arena interactive demo"
+git branch -M main
+git remote add origin https://github.com/myk4040okothogodo/Arena.git
+git push -u origin main
+```
+If Git asks for a password, use a **Personal Access Token** (GitHub → Settings → Developer settings → Personal access tokens), not your account password.
 
 ## The QR code
 `qr-code.png` / `qr-code.svg` and `scan-poster.svg/pdf` point to **https://mpesa-arena-demo.vercel.app**.
