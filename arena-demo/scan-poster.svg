@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="794" height="1123" viewBox="0 0 794 1123" font-family="Segoe UI, Arial, sans-serif">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#062017"/><stop offset="0.55" stop-color="#0a3d2a"/><stop offset="1" stop-color="#0e5033"/></linearGradient></defs>
+<rect width="794" height="1123" fill="url(#bg)"/>
+<circle cx="700" cy="120" r="150" fill="#ffffff" opacity="0.05"/>
+<circle cx="90" cy="1000" r="170" fill="#ffffff" opacity="0.05"/>
+<rect x="347" y="150" width="100" height="100" rx="24" fill="#ffffff"/>
+<text x="397" y="222" font-size="60" font-weight="900" fill="#3ab54a" text-anchor="middle">A</text>
+<text x="397" y="330" font-size="52" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="1">M-PESA Arena</text>
+<text x="397" y="378" font-size="21" fill="#dfeee6" text-anchor="middle">Back Africa's best traders — or let the AI invest for you.</text>
+<rect x="222" y="430" width="350" height="350" rx="28" fill="#ffffff"/>
+<image x="247" y="455" width="300" height="300" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAhwAAAIcAQMAAACHMOU/AAAABlBMVEUKPSr///+SfI/WAAACmUlEQVR42u2dQXLDMAhFmV7A97+lbkDrOIIPVrJpF231PF64ifIWnXmDQEg2//41DAgQIECAAAECBAgQIEB+LcTiOs4Pv67zq8d9Pl8jx+PbNvj86sN+4AIC5G9BpjuHLx8uiS5NrnsxGHeA7O1OCmIZa+LPGNAG4w4Q3CnuxNxMQ8yctuEOECBLd56ZTmRD45bv4A4QIMt8Z2SO83yYpQPyHSBAujtxzZrAu1sG4w6Qzd1pVwSajETeMyApdPOPBbK3O7OqVtyRNZ14jsG4AwR3MvF3qRV4Lx3EnE2zHtwBsnXcmdOzjDsRX+byaKshUCsAgjsaU7QirW0/EWtaVQF3gOw+ZzNTfSK46FJpUYwaNRDcuRUKMq85JBUa5Sc5GHeAbB93sg6w7KCW5VGdtuEOENzJEsGohQIv7TrPXw3cAYI7rgug+fmokUhVOmpZG3eAbJ7v3HsM6s6dUoVz8h0guNOr0KpMXxKNZaCDOhsQ3HFVRotsusO6TdjK6g/uANk77ujazXr3aN1DStwBgjvZ26nl6BZctI9ax+AOkM3nbDIx0+BS2gxa+wFxBwjuuCzctApbzNCGLPRUg3AHCLWC1o3Te0FrU0Fu4cEdIJu7497O/SiHHHopu5Xdo7gDZPN859b/2Y6cags98jn/WCDbx51hyxmadlPr8ijuAMEdPcww2z7r8qiZ9WfcAbK9O30Rx0p5rRXfsqZNvgOEuBPXixxHe3I4FxQIEHv7HgTT40DvR04xZwOCO+0s93ovF3foKwCCO8v3IOTxBaOEHp2qcT4bENxZvAfBS8pTTmPTPQvEHSC4c3sPQtuCXY6Zsnr2FO4A2dmd5oi4U167c5TzQHAHCO7w/mIgQIAAAQIECBAgQID8O8gncezvfvpxxgcAAAAASUVORK5CYII="/>
+<text x="397" y="850" font-size="30" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="3">SCAN TO TRY THE DEMO</text>
+<text x="397" y="905" font-size="17" font-weight="700" fill="#e9c94a" text-anchor="middle">The best rise to the top. Capital follows talent. Safaricom earns the spread.</text>
+<text x="397" y="960" font-size="14" fill="#9fc4b2" text-anchor="middle">Team TheArena  ·  mpesa-arena-demo.vercel.app</text>
+</svg>
