@@ -15,7 +15,7 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
 html,body{height:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  background:linear-gradient(135deg,#062017,#0a3d2a 45%,#0e5033);color:var(--ink);
+  background:linear-gradient(160deg,#26292c,#121417);color:var(--ink);
   display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden}
 #phone{position:relative;width:100%;max-width:430px;height:calc(100vh - 40px);max-height:920px;background:var(--bg);
   overflow:hidden;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.5);border-radius:34px}
@@ -443,10 +443,9 @@ function renderLogin(arg,el){
   document.getElementById('screen').innerHTML=`<div id="login">
     <div class="hero"></div><div class="scrim"></div>
     <div class="content">
-      <h1>M-PESA Arena</h1>
-      <div class="tl">Back Africa's best traders — or trade the world's markets yourself.</div>
+      <h1>M-pesa Arena</h1>
       <div class="tag">The best rise to the top. Capital follows talent.</div>
-      <button class="btn grad" onclick="go('roles')">Enter Arena</button>
+      <button class="btn grad" onclick="go('roles')" style="width:auto;padding:14px 42px;margin-top:8px">Enter Arena</button>
     </div></div>`;
 }
 function backchip(){return `<button class="bkbtn" onclick="back()">‹ Back</button>`;}

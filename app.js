@@ -201,10 +201,9 @@ function renderLogin(arg,el){
   document.getElementById('screen').innerHTML=`<div id="login">
     <div class="hero"></div><div class="scrim"></div>
     <div class="content">
-      <h1>M-PESA Arena</h1>
-      <div class="tl">Back Africa's best traders — or trade the world's markets yourself.</div>
+      <h1>M-pesa Arena</h1>
       <div class="tag">The best rise to the top. Capital follows talent.</div>
-      <button class="btn grad" onclick="go('roles')">Enter Arena</button>
+      <button class="btn grad" onclick="go('roles')" style="width:auto;padding:14px 42px;margin-top:8px">Enter Arena</button>
     </div></div>`;
 }
 function backchip(){return `<button class="bkbtn" onclick="back()">‹ Back</button>`;}
