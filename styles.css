@@ -106,7 +106,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .howrow .hstep .hn{width:24px;height:24px;border-radius:50%;background:var(--green);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 6px}
 .howrow .hstep .ht{font-size:10.5px;color:#37443d;line-height:1.35}
 /* trader list rows */
-.trow{display:flex;align-items:center;gap:12px;background:#fff;border-radius:15px;padding:11px 12px;margin-bottom:9px;box-shadow:0 3px 12px rgba(14,42,27,.05);cursor:pointer}
+.trow{display:flex;align-items:center;gap:12px;background:#fff;border-radius:15px;padding:11px 12px;margin-bottom:9px;box-shadow:0 3px 12px rgba(14,42,27,.05);cursor:pointer;will-change:transform}
 .trow .rank{width:20px;text-align:center;font-weight:800;color:var(--muted)}
 .trow .ti{flex:1;min-width:0}.trow .ti .n{font-weight:700;font-size:14px}
 .trow .ti .m{display:flex;align-items:center;gap:6px;margin-top:3px}

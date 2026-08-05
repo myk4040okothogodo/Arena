@@ -26,7 +26,7 @@ const CLASSES=[
  {k:"Crypto",img:"images/crypto.jpg",short:"Crypto",ic:"crypto",g:"linear-gradient(135deg,#5b3cc4,#7b61ff)",sym:"BTC/USDT",px:64200,dp:0,
   blurb:"Digital assets such as Bitcoin and Ethereum — high-volatility, 24/7 markets traded on regulated (VASP-licensed) venues.",
   how:["Traded 24/7, globally","High volatility = high risk","Via VASP-licensed exchanges"]},
- {k:"Shares",img:"images/shares.jpg",short:"Shares",ic:"shares",g:"linear-gradient(135deg,#0f6e4f,#12a150)",sym:"Equity",px:142,dp:2,
+ {k:"Shares",img:"images/share.jpg",short:"Shares",ic:"shares",g:"linear-gradient(135deg,#0f6e4f,#12a150)",sym:"Equity",px:142,dp:2,
   blurb:"Ownership stakes in listed companies. You profit from price gains and dividends as the business grows.",
   how:["Buy a slice of a company","Earn from growth & dividends","Executed via licensed brokers"]},
  {k:"Futures",img:"images/futures.jpg",short:"Futures",ic:"futures",g:"linear-gradient(135deg,#0b6b6b,#0d9488)",sym:"Gold Fut",px:2041,dp:1,
@@ -38,7 +38,7 @@ const CLASSES=[
  {k:"Forex",img:"images/forex.jpg",short:"Forex",ic:"forex",g:"linear-gradient(135deg,#1a5e3a,#12813f)",sym:"EUR/USD",px:1.087,dp:4,
   blurb:"Foreign exchange — trading one currency against another. The world's largest, most liquid market.",
   how:["Trade currency pairs","Deep liquidity, tight spreads","CMA-licensed FX brokers"]},
- {k:"Stock Trading",img:"images/stocks.jpg",short:"Stocks",ic:"stock",g:"linear-gradient(135deg,#0b4a6b,#2980b9)",sym:"US Tech",px:402,dp:2,
+ {k:"Stock Trading",img:"images/share.jpg",short:"Stocks",ic:"stock",g:"linear-gradient(135deg,#0b4a6b,#2980b9)",sym:"US Tech",px:402,dp:2,
   blurb:"Active trading of global equities — taking shorter-term positions in shares to profit from price moves.",
   how:["Shorter-term equity trades","Global markets access","Skill & timing driven"]}];
 const CMAP={}; CLASSES.forEach(c=>CMAP[c.k]=c);
@@ -288,10 +288,10 @@ function renderAssetInfo(k,el){const c=CMAP[k],list=tradersIn(k),ch=clsChange(c)
     <div class="infoblock"><h4>How it trades</h4><div class="howrow">${c.how.map((h,i)=>`<div class="hstep"><div class="hn">${i+1}</div><div class="ht">${h}</div></div>`).join('')}</div></div>
     <div class="sect">Traders specialising in ${c.short}</div>
     <div class="rankinfo">⚖️ <b>How traders are ranked:</b> the AI scores each on a 0–1000 Arena Score — risk-adjusted returns (30%), consistency (25%), capital efficiency (15%), decision quality (15%), track record (10%) and diversification (5%). Skill, not luck. The list below is ranked by performance in ${c.short}.</div>
-    ${list.map((t,i)=>traderRow(t,i,k)).join('')||'<div class="lockmsg">No traders in this class yet.</div>'}`;
+    <div id="atList">${list.map((t,i)=>traderRow(t,i,k)).join('')||'<div class="lockmsg">No traders in this class yet.</div>'}</div>`;
 }
 function traderRow(t,i,k){const grade=tierOf(t.score),perf=k?t.classes[k].perf:t.ret;
-  return `<div class="trow" onclick="go('profile',${t.id})">
+  return `<div class="trow" data-id="${t.id}" onclick="go('profile',${t.id})">
     <div class="rank">${i+1}</div>${avatar(t,42)}
     <div class="ti"><div class="n">${t.name}</div><div class="m"><span class="tier t-${grade}">${grade}</span><span class="verified" style="padding:2px 7px">✓</span><span class="muted" style="font-size:11px">${t.age}, ${t.gender==='F'?'Female':'Male'}</span></div></div>
     <div class="tr"><div class="p ${perf>=0?'up':'down'}">${perf>=0?'+':''}${perf.toFixed(1)}%</div><div class="s">${k?CMAP[k].short:'30-day'}</div></div></div>`;}
@@ -541,11 +541,17 @@ function softEarn(){const t=traders[traderSelf];const e=document.getElementById(
 function softPortfolio(){const el=document.getElementById('pTot');if(!el)return;
   const pv=portValue(),cost=positions.reduce((s,p)=>s+p.amount,0),pl=pv-cost,plp=cost?pl/cost*100:0;
   el.textContent=money(pv);document.getElementById('pPl').textContent=(pl>=0?'+':'')+money(pl).slice(4)+' ('+(plp>=0?'+':'')+plp.toFixed(1)+'%)';renderPBody();}
+function softAssetInfo(){const k=state.arg,cont=document.getElementById('atList');if(!cont)return;
+  const first={};cont.querySelectorAll('.trow').forEach(el=>first[el.dataset.id]=el.getBoundingClientRect().top);
+  const list=tradersIn(k);cont.innerHTML=list.map((t,i)=>traderRow(t,i,k)).join('')||'<div class="lockmsg">No traders in this class yet.</div>';
+  cont.querySelectorAll('.trow').forEach(el=>{const id=el.dataset.id;if(first[id]!=null){const d=first[id]-el.getBoundingClientRect().top;
+    if(Math.abs(d)>1){el.style.transform=`translateY(${d}px)`;el.style.transition='none';requestAnimationFrame(()=>{el.style.transition='transform .6s cubic-bezier(.2,.9,.25,1)';el.style.transform='';});}}});}
 function softRefresh(){const p=state.page;
   if(p==='invHome')softInvHome();else if(p==='invPortfolio')softPortfolio();
   else if(p==='tHome')softTHome();else if(p==='tMarkets')softMarkets();
   else if(p==='tBackers')softBackers();else if(p==='tEarn')softEarn();
-  else if(p==='tTrades'){const s=document.getElementById('scrIn');if(s)renderTTrades(null,s);}}
+  else if(p==='tTrades'){const s=document.getElementById('scrIn');if(s)renderTTrades(null,s);}
+  else if(p==='assetInfo')softAssetInfo();}
 const PAGES={
  login:{render:renderLogin,chrome:false,raw:true},
  roles:{render:renderRoles,chrome:false},
