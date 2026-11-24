@@ -242,7 +242,7 @@ function render(){
   const top=S.stack[S.stack.length-1];
   const titles={home:'ZiiDi Trader',trade:'Trade',portfolio:'ZiiDi Trader',account:'ZiiDi Trader'};
   let title=titles[S.tab],bk=false;
-  if(top){bk=true;title=top.p==='profile'?'Trader profile':top.p==='swarm'?'Swarm Intelligence':top.p==='legal'?'Copy agreement':top.p==='tlegal'?'Copy trader agreement':top.p==='optin'?'Become a copy trader':'My copy profile';}
+  if(top){bk=true;title=top.p==='profile'?'Trader profile':top.p==='swarm'?'Swarm Intelligence':top.p==='legal'?'Copier agreement':top.p==='tlegal'?'Copy trader agreement':top.p==='optin'?'Become a copy trader':'My copy profile';}
   $('#hdr').innerHTML=`<h1>${bk?'<button class="bk" onclick="back()">‹</button>':''}${title}</h1><div class="capsule">•••<i></i>⊗</div>`;
   $('#nav').innerHTML=['home','trade','portfolio','account'].map(t=>`<button class="${S.tab===t?'on':''}" onclick="go('${t}')"><svg viewBox="0 0 24 24">${ICONS[t]}</svg>${t[0].toUpperCase()+t.slice(1)}</button>`).join('');
   const v=$('#view'),y=v.scrollTop;
@@ -344,7 +344,7 @@ function basketSheet(){const t=T(cp.id),b=basket(t,cp.amount);cp.b=b;cp.fromBask
   <div class="ln"><span>Brokerage, levies &amp; stamp duty<small>ZiiDi’s standard rates</small></span><b>${K2(b.fees)}</b></div>
   <div class="ln"><span><b>Total debited from M-PESA</b></span><b style="color:var(--gt)">${K2(b.total)}</b></div>
   <div class="card" style="background:#232323;padding:12px;font-size:13px;margin-top:10px">Stays in your M-PESA: <b>${K2(b.keep)}</b> — ${t.name.split(' ')[0]}’s ${b.cashw}% cash weight and whole-share rounding. Nothing is held back from you.</div>
-  <label class="ck"><input type="checkbox" onchange="cp.agree=this.checked;$('#cgo2').disabled=!this.checked"><span>I understand I can lose money, rankings aren’t a guarantee, my fills may differ, and I accept the <u style="color:var(--gt);cursor:pointer" onclick="event.preventDefault();event.stopPropagation();cp.fromBasket=true;closeSheet();push({p:'legal',fresh:true})">Copy Trading Agreement</u>.</span></label>
+  <label class="ck"><input type="checkbox" onchange="cp.agree=this.checked;$('#cgo2').disabled=!this.checked"><span>I understand I can lose money, rankings aren’t a guarantee, my fills may differ, and I accept the <u style="color:var(--gt);cursor:pointer" onclick="event.preventDefault();event.stopPropagation();cp.fromBasket=true;closeSheet();push({p:'legal',fresh:true})">Copier Agreement</u>.</span></label>
   <button class="btn" id="cgo2" disabled onclick="doCopyPin()">Confirm with M-PESA PIN <span class="pinbadge">1 PIN</span></button>`);}
 function doCopyPin(){const t=T(cp.id),b=cp.b;pinSheet({title:'Confirm copy',sub:`${b.rows.length} buy orders · ${t.name}`,amount:K2(b.total),note:'One PIN covers all orders',ok:doCopy});}
 function doCopy(){const t=T(cp.id),b=cp.b;S.wallet-=b.total;S.copies.push({id:cp.id,amount:b.total,stop:cp.stop,pl:0,paused:false,b});
@@ -438,7 +438,7 @@ function vTDash(){const s=S.tstat,t={days:s.months*30+52};
   <div class="toggle"><span>Accept new copiers</span><div class="sw ${S.accept?'on':''}" onclick="S.accept=!S.accept;render()"></div></div>
   <div style="margin-top:18px"><button class="btn red" onclick="S.isTrader=false;S.tstat=fresh().tstat;S.stack=[];render();toast('You’ve stopped sharing. Existing copiers are notified.')">Stop sharing my trades</button></div>`;}
 
-function vTLegal(){return`<div class="legal"><p class="mut">Plain-language summary first; full terms below. Replace with counsel-approved text before launch.</p>
+function vTLegal(){return`<div class="legal"><p class="mut">Copy Trader Agreement: for customers who allow others to copy them. Plain-language summary first; full terms below. Replace with counsel-approved text before launch.</p>
   <h4>1. What being copied means</h4><p>When you become a copy trader, investors on ZiiDi can choose to follow your portfolio. When you change your holdings, ZiiDi works out the matching orders for each follower and places them in <b>their own accounts</b>, only after they approve with their own M-PESA PIN. You give instructions only for your own account.</p>
   <h4>2. No access to followers’ money</h4><p>You cannot see, hold, move or withdraw any follower’s funds, and you cannot place orders in their accounts. Their shares stay in their own CDS accounts.</p>
   <h4>3. What others can see</h4><p>Once you are listed, your Arena Score, statistics, holdings and recent trades are visible to other ZiiDi customers <b>after market close</b>. Your name is shown as it appears on your profile. Follower names are never shown to you.</p>
@@ -448,13 +448,13 @@ function vTLegal(){return`<div class="legal"><p class="mut">Plain-language summa
   <h4>7. Your conduct</h4><p>You must not manipulate prices, trade ahead of followers, coordinate trades to game your ranking, or trade on inside information. Breach can lead to removal from the leaderboard, loss of unpaid earnings and referral to the regulator.</p>
   <h4>8. Changes and leaving</h4><p>Frequent changes cost followers brokerage and fees, so you will see a notice before you trade. You can stop being a copy trader at any time. Followers are told and keep the shares they hold. You cannot leave ZiiDi while you hold shares.</p>
   <h4>9. Data, regulation & law</h4><p>Your data is processed under the Data Protection Act, 2019. Copy trading is provided under the applicable Capital Markets Authority licence. Governed by the laws of Kenya.</p></div>`;}
-function vLegal(){return`<div class="legal"><p class="mut">Plain-language summary first; full terms below. Replace with counsel-approved text before launch.</p>
+function vLegal(){return`<div class="legal"><p class="mut">Copier Agreement: for investors who copy a trader. Plain-language summary first; full terms below. Replace with counsel-approved text before launch.</p>
   <h4>1. What “copying” means</h4><p>When you copy a trader, ZiiDi works out the matching orders for <b>your own account</b> whenever the trader changes their mix, and places them only after you approve with your M-PESA PIN. The trader gives instructions only for their own account. They have <b>no access</b> to your money, cannot withdraw, and cannot trade your account directly.</p>
   <h4>2. No advice, real risk</h4><p>Rankings, scores and profiles are information, not financial advice or a recommendation. Investing can lose some or all of your money. Past performance does not predict future results.</p>
   <h4>3. Execution differences</h4><p>Your results can differ from the trader’s because of timing, available prices, minimum lot sizes, thinly traded shares, market hours and settlement. Orders placed when the market is closed execute at the next open.</p>
   <h4>4. Fees</h4><p>A performance fee of 15–20% applies only to net new profit above your previous peak (high-water mark). It is shared between the trader and ZiiDi. No profit, no fee. Normal brokerage and exchange charges still apply to copied trades.</p>
   <h4>5. Your controls</h4><p>You choose the amount and a loss alert level. You approve every purchase and sale with your PIN. You can stop copying at any time. Stopping does not affect positions already held unless you choose to sell.</p>
-  <h4>6. Trader conduct</h4><p>Traders must not manipulate markets, trade ahead of copiers, or game the ranking. Breach leads to removal, forfeiture of fees and possible legal action. Traders bear no obligation to reimburse market losses.</p>
+  <h4>6. About the traders you copy</h4><p>Traders are other ZiiDi customers. They are not ZiiDi employees or advisers. They have no access to your money and cannot place orders in your account. They have their own agreement with ZiiDi, including rules against manipulating prices and trading ahead of followers, but ZiiDi cannot guarantee that every trader follows those rules or that a trader’s results will continue. Traders are not liable for your losses.</p>
   <h4>7. Data, regulation & law</h4><p>Your data is processed under the Data Protection Act, 2019. Copy trading is provided under the applicable Capital Markets Authority licence. Governed by the laws of Kenya.</p></div>${cp&&cp.fromBasket?`<button class="btn" style="margin-top:16px" onclick="back();basketSheet()">Back to my basket</button>`:''}`;}
 
 /* ---------- demo: simulate a month ---------- */
