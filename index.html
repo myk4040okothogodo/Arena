@@ -118,6 +118,19 @@ body.hl .isnew{outline:2px dashed var(--gold);outline-offset:2px}
 body:not(.hl) .pop{display:none}
 .toast{position:absolute;left:16px;right:16px;top:70px;background:#1d3a26;color:var(--gt);padding:12px 16px;border-radius:12px;font-size:14px;z-index:30;transition:.3s;opacity:0;pointer-events:none}
 .toast.on{opacity:1}
+.pinpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 4px}
+.pinpad button{padding:15px;border-radius:14px;background:var(--card2);font-size:22px;font-weight:600}
+.dots{display:flex;gap:14px;justify-content:center;margin:14px 0 6px}
+.dots i{width:16px;height:16px;border-radius:50%;border:2px solid #666}.dots i.f{background:var(--gt);border-color:var(--gt)}
+.mpesa{display:inline-block;background:#43b02a;color:#fff;font-weight:800;font-size:12px;border-radius:6px;padding:2px 8px;letter-spacing:.05em}
+.ln{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #2a2a2a;font-size:14px}.ln:last-child{border-bottom:0}
+.ln small{display:block;color:var(--mut);font-size:11.5px}
+.pinbadge{display:inline-block;background:#3a1a1f;color:var(--r);border-radius:8px;padding:2px 8px;font-size:11px;font-weight:800;margin-left:6px}
+.alertc{background:#2a161a;border:1px solid #5a2a32;border-radius:14px;padding:13px;margin-bottom:8px;font-size:13.5px}
+.updc{background:#1d3a26;border:1px solid #2b6a3c;border-radius:14px;padding:13px;margin-bottom:8px;font-size:13.5px}
+body.bare{background:#111!important}body.bare .stage{padding:0;display:block;min-height:0}body.bare .notes{display:none}
+body.bare *{transition:none!important}
+body.bare .phone{box-shadow:none;border-radius:0;max-height:none;height:820px!important;width:393px!important;position:absolute;left:50%;margin-left:-196.5px;top:0}
 </style>
 </head>
 <body>
@@ -296,29 +309,77 @@ function feeBlock(t){const c=carry(t),tr=c*.7,zi=c*.3;return`<div style="line-he
   <div style="font-size:12.5px;display:flex;justify-content:space-between"><span class="up">You keep ${Math.round((1-c)*100)}%</span><span style="color:var(--gold)">Trader ${(tr*100).toFixed(1)}%</span><span style="color:#4aa3ff">ZiiDi ${(zi*100).toFixed(1)}%</span></div>
   <div class="mut" style="font-size:12.5px;margin-top:10px">On KSh 100,000 profit you keep ${K0((1-c)*1e5)}.</div>
   <div class="pt" style="margin-top:14px"><span class="n">✓</span><span>Your money stays in your own account. The trader <b>never touches it</b>.</span></div>
-  <div class="pt"><span class="n">✓</span><span>Auto-stop at the loss limit you choose. Pause or stop any time.</span></div></div>`;}
+  <div class="pt"><span class="n">✓</span><span>You approve every trade with your PIN. We alert you at the loss level you choose. Stop any time.</span></div></div>`;}
 
+/* ---------- BASKET (whole shares, one PIN) ---------- */
+const PRICE={SCOM:17.40,EQTY:52.25,KCB:58.50,COOP:19.15,EABL:182.00,BAT:548.00,ABSA:29.95,KEGN:5.15,KPLC:2.60,NCBA:48.00,BAMB:62.00,JUB:250.00,CTUM:1.40};
+const stamp=a=>a<=0?0:a<2000?1:a<=10000?2:2*Math.ceil(a/10000);
+const COMM=.015; // placeholder: ZiiDi's existing fee calculator supplies the real figure
+function basket(t,amount){const rows=t.h.filter(([k])=>k!=='Cash').map(([k,w])=>{const px=PRICE[k]||10,tgt=amount*w/100,q=Math.floor(tgt/px),cost=q*px;return{k,w,px,q,cost,stamp:stamp(cost),comm:cost*COMM}}).filter(r=>r.q>0);
+  const sh=rows.reduce((a,r)=>a+r.cost,0),fees=rows.reduce((a,r)=>a+r.stamp+r.comm,0),total=sh+fees,cashw=(t.h.find(([k])=>k==='Cash')||[0,0])[1];
+  return{rows,sh,fees,total,cashw,keep:amount-total};}
+function pinSheet(o){const n=o.filled||0;
+  openSheet(`<div style="text-align:center"><span class="mpesa">M-PESA</span><h3 style="margin-top:10px">${o.title}</h3><div class="mut" style="font-size:13.5px;margin:4px 0 2px">${o.sub}</div>
+  <div style="font-size:24px;font-weight:700;margin:10px 0 0">${o.amount}</div><div class="mut" style="font-size:12.5px">${o.note||''}</div></div>
+  <div class="dots" id="dots">${[0,1,2,3].map(i=>`<i class="${i<n?'f':''}"></i>`).join('')}</div><div class="mut" style="text-align:center;font-size:12.5px">Enter your M-PESA PIN</div>
+  <div class="pinpad">${[1,2,3,4,5,6,7,8,9,'',0,'⌫'].map(k=>`<button onclick="pinKey('${k}')">${k}</button>`).join('')}</div>`);window._pin={n:n,ok:o.ok};}
+function pinKey(k){if(k==='')return;const d=window._pin;if(k==='⌫')d.n=Math.max(0,d.n-1);else d.n=Math.min(4,d.n+1);document.querySelectorAll('#dots i').forEach((e,i)=>e.classList.toggle('f',i<d.n));if(d.n===4){const f=d.ok;setTimeout(()=>f(),250);}}
+function legRows(b,tag){return b.rows.map(r=>`<div class="ln"><span><b>${r.k}</b> × ${r.q}<small>${K2(r.px)} · weight ${r.w}%</small></span><span style="text-align:right"><b>${tag||K2(r.cost)}</b></span></div>`).join('');}
 /* ---------- COPY FLOW ---------- */
 let cp={};
 function openCopy(id){cp={id,amount:10000,stop:20,agree:false};copySheet();}
 function copySheet(){const t=T(cp.id),c=carry(t),sw=cp.id==='swarm';
-  openSheet(`<h3>Copy ${t.name}</h3><div class="mut" style="text-align:center;font-size:13px;margin-bottom:14px">Available in ZiiDi wallet: ${K0(S.wallet)}</div>
+  openSheet(`<h3>Copy ${t.name}</h3><div class="mut" style="text-align:center;font-size:13px;margin-bottom:14px">M-PESA balance: ${K0(S.wallet)}</div>
   <div class="lbl mut" style="margin-bottom:6px"><span>How much to copy with</span><span>Min KSh 5,000</span></div>
   <input type="number" id="amt" value="${cp.amount}" oninput="cp.amount=+this.value;cpChk()">
   <div class="chips">${[5000,10000,25000,50000].map(v=>`<button onclick="cp.amount=${v};copySheet()" class="${cp.amount===v?'on':''}">${short(v)}</button>`).join('')}</div>
-  <div class="lbl mut" style="margin-bottom:2px"><span>Auto-stop if I lose</span></div>
+  <div class="lbl mut" style="margin-bottom:2px"><span>Alert me if my copy loses</span></div>
   <div class="chips">${[10,20,30].map(v=>`<button onclick="cp.stop=${v};copySheet()" class="${cp.stop===v?'on':''}">${v}%</button>`).join('')}</div>
-  <div class="card" style="background:#232323;padding:13px;font-size:13px">Fee: <b>${Math.round(c*100)}% of profit only</b>. You keep ${Math.round((1-c)*100)}%. ${sw?`The Swarm follows the Arena-Score-weighted consensus of ${SWN} top traders, so no single trader decides.`:`If ${t.name.split(' ')[0]} buys 10% of their portfolio in a stock, ${K0(cp.amount*.1)} of your ${K0(cp.amount)} follows.`}</div>
-  <label class="ck"><input type="checkbox" onchange="cp.agree=this.checked;cpChk()" ${cp.agree?'checked':''}><span>I understand I can lose money, rankings aren’t a guarantee, and I accept the <u onclick="event.preventDefault();closeSheet();push({p:'legal',fresh:true})" style="color:var(--gt)">Copy Trading Agreement</u>.</span></label>
-  <button class="btn" id="cgo" onclick="doCopy()">Confirm with M-PESA PIN</button>`);cpChk();}
-function cpChk(){const b=$('#cgo');if(!b)return;b.disabled=!(cp.agree&&cp.amount>=5000&&cp.amount<=S.wallet);}
-function doCopy(){const t=T(cp.id),sw=cp.id==='swarm';S.wallet-=cp.amount;S.copies.push({id:cp.id,amount:cp.amount,stop:cp.stop,pl:0,paused:false});
-  openSheet(`<div class="empty"><div class="ic">✅</div><h3>You’re copying ${t.name.split(' ')[0]}</h3><div class="mut" style="margin:8px 0 18px;font-size:14px">${K0(cp.amount)} will follow ${sw?'the Swarm':'their trades'} automatically when the market opens.</div><button class="btn" onclick="closeSheet();S.stack=[];S.port='copying';go('portfolio')">View in Portfolio</button></div>`);render();}
+  <div class="card" style="background:#232323;padding:13px;font-size:13px">Fee: <b>${Math.round(c*100)}% of profit only</b>. You keep ${Math.round((1-c)*100)}%. ${sw?`The Swarm follows the Arena-Score-weighted consensus of ${SWN} top traders, so no single trader decides.`:`Next you will see exactly which shares ${t.name.split(' ')[0]}’s mix turns into at today’s prices.`}</div>
+  <button class="btn" id="cgo" onclick="basketSheet()">See my basket</button>`);cpChk();}
+function cpChk(){const b=$('#cgo');if(!b)return;b.disabled=!(cp.amount>=5000&&cp.amount<=S.wallet);}
+function basketSheet(){const t=T(cp.id),b=basket(t,cp.amount);cp.b=b;
+  openSheet(`<h3>Your basket</h3><div class="mut" style="text-align:center;font-size:13px;margin-bottom:10px">${t.name}’s mix as whole shares at last close</div>${legRows(b)}
+  <div class="ln"><span>Shares<small>${b.rows.length} orders in your own CDS account</small></span><b>${K2(b.sh)}</b></div>
+  <div class="ln"><span>Brokerage, levies &amp; stamp duty<small>ZiiDi’s standard rates</small></span><b>${K2(b.fees)}</b></div>
+  <div class="ln"><span><b>Total debited from M-PESA</b></span><b style="color:var(--gt)">${K2(b.total)}</b></div>
+  <div class="card" style="background:#232323;padding:12px;font-size:13px;margin-top:10px">Stays in your M-PESA: <b>${K2(b.keep)}</b> — ${t.name.split(' ')[0]}’s ${b.cashw}% cash weight and whole-share rounding. Nothing is held back from you.</div>
+  <label class="ck"><input type="checkbox" onchange="cp.agree=this.checked;$('#cgo2').disabled=!this.checked"><span>I understand I can lose money, rankings aren’t a guarantee, my fills may differ, and I accept the <u style="color:var(--gt)">Copy Trading Agreement</u>.</span></label>
+  <button class="btn" id="cgo2" disabled onclick="doCopyPin()">Confirm with M-PESA PIN <span class="pinbadge">1 PIN</span></button>`);}
+function doCopyPin(){const t=T(cp.id),b=cp.b;pinSheet({title:'Confirm copy',sub:`${b.rows.length} buy orders · ${t.name}`,amount:K2(b.total),note:'One PIN covers all orders',ok:doCopy});}
+function doCopy(){const t=T(cp.id),b=cp.b;S.wallet-=b.total;S.copies.push({id:cp.id,amount:b.total,stop:cp.stop,pl:0,paused:false,b});
+  openSheet(`<div style="text-align:center"><div style="font-size:40px">✅</div><h3>${b.rows.length} orders placed</h3><div class="mut" style="margin:6px 0 12px;font-size:13.5px">Market is closed. They will run when it opens. You’ll get an SMS for each fill.</div></div>${legRows(b,'Queued')}
+  <div class="mut" style="font-size:12px;margin:10px 0">Any part that doesn’t fill is refunded to your M-PESA.</div><button class="btn" onclick="closeSheet();S.stack=[];S.port='copying';go('portfolio')">View in Portfolio</button>`);render();}
+function updDelta(c){const t=T(c.id);return{sell:{k:'COOP',q:49,px:PRICE.COOP},buy:{k:'KEGN',q:194,px:PRICE.KEGN},t};}
+function updSheet(id){const c=copyOf(id),d=updDelta(c),sv=d.sell.q*d.sell.px,bv=d.buy.q*d.buy.px,fee=(sv+bv)*COMM+stamp(sv)+stamp(bv);
+  openSheet(`<h3>Update your copy</h3><div class="mut" style="text-align:center;font-size:13px;margin-bottom:10px">${d.t.name.split(' ')[0]} changed her mix at close. Only the difference is traded.</div>
+  <div class="ln"><span><b class="dn">Sell</b> ${d.sell.k} × ${d.sell.q}<small>18% → 8% of her mix</small></span><b>${K2(sv)}</b></div>
+  <div class="ln"><span><b class="up">Buy</b> ${d.buy.k} × ${d.buy.q}<small>0% → 10% of her mix</small></span><b>${K2(bv)}</b></div>
+  <div class="ln"><span>Everything else<small>SCOM, EABL, BAT unchanged</small></span><b class="mut">No trade</b></div>
+  <div class="ln"><span>Fees</span><b>${K2(fee)}</b></div>
+  <div class="card" style="background:#232323;padding:12px;font-size:13px;margin-top:10px">Sale proceeds return to your M-PESA. The purchase is debited now.</div>
+  <button class="btn" onclick="updPin('${id}')">Approve with M-PESA PIN <span class="pinbadge">1 PIN</span></button><button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Not now</button>`);}
+function updPin(id){const c=copyOf(id),d=updDelta(c);pinSheet({title:'Approve update',sub:`Sell ${d.sell.k}, buy ${d.buy.k}`,amount:K2(d.buy.q*d.buy.px*(1+COMM)),note:'One PIN covers the sell and the buy',ok:()=>{c.upd=false;openSheet(`<div style="text-align:center"><div style="font-size:40px">✅</div><h3>Update placed</h3><div class="mut" style="margin:6px 0 14px;font-size:13.5px">2 orders queued for the next open.</div></div><button class="btn" onclick="closeSheet();render()">Done</button>`);render();}});}
+function lossSheet(id){const c=copyOf(id),t=T(id);
+  openSheet(`<div style="text-align:center"><div style="font-size:38px">⚠️</div><h3>Your copy is down ${c.stop}%</h3><div class="mut" style="margin:6px 0 14px;font-size:13.5px">You asked us to alert you at -${c.stop}%. Selling needs your PIN, so nothing has been sold.</div></div>
+  <button class="btn red" onclick="sellPin('${id}')">Review and sell <span class="pinbadge">1 PIN</span></button><button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Keep holding</button>`);}
+function sellPin(id){const c=copyOf(id),t=T(id);pinSheet({title:'Sell all copied shares',sub:`${c.b?c.b.rows.length:4} sell orders`,amount:K2(copyVal(c)),note:'Proceeds paid to your M-PESA when the orders fill',ok:()=>stopDone(id)});}
 function manage(id){const c=copyOf(id),t=T(id),q=`'${id}'`,sw=id==='swarm';
-  openSheet(`<h3>${t.name}</h3><div class="mut" style="text-align:center;margin-bottom:12px">Value ${K0(copyVal(c))} · <span class="${c.pl>=0?'up':'dn'}">${pct(c.pl,2)}</span> · auto-stop at -${c.stop}%</div>
-  <div class="toggle"><span>Copy new trades<small>Turn off to keep positions but stop mirroring</small></span><div class="sw ${c.paused?'':'on'}" onclick="copyOf(${q}).paused=!copyOf(${q}).paused;manage(${q});render()"></div></div>
-  <div style="margin-top:16px"><button class="btn ghost" onclick="closeSheet();${sw?'openSwarm()':'openProfile('+id+')'}" style="margin-bottom:10px">${sw?'View composition':'View profile'}</button><button class="btn red" onclick="stopCopy(${q})">Stop copying &amp; sell</button></div>`);}
-function stopCopy(id){const c=copyOf(id);S.wallet+=copyVal(c);S.copies=S.copies.filter(x=>String(x.id)!==String(id));closeSheet();toast('Stopped. Funds returned to your wallet.');S.stack=[];render();}
+  openSheet(`<h3>${t.name}</h3><div class="mut" style="text-align:center;margin-bottom:12px">Value ${K0(copyVal(c))} · <span class="${c.pl>=0?'up':'dn'}">${pct(c.pl,2)}</span> · alert at -${c.stop}%</div>
+  <div class="toggle"><span>Ask me when ${t.name.split(' ')[0]} changes her mix<small>Turn off to keep your shares as they are</small></span><div class="sw ${c.paused?'':'on'}" onclick="copyOf(${q}).paused=!copyOf(${q}).paused;manage(${q});render()"></div></div>
+  <div style="margin-top:16px"><button class="btn ghost" onclick="closeSheet();${sw?'openSwarm()':'openProfile('+id+')'}" style="margin-bottom:10px">${sw?'View composition':'View profile'}</button><button class="btn red" onclick="stopSheet(${q})">Stop copying</button></div>
+  <div class="mut" style="font-size:11.5px;text-align:center;margin-top:14px">Demo: <u onclick="copyOf(${q}).upd=true;closeSheet();render()">trader changed mix</u> · <u onclick="copyOf(${q}).pl=-copyOf(${q}).stop;closeSheet();render()">trigger loss alert</u></div>`);}
+function stopSheet(id){const t=T(id);
+  openSheet(`<h3>Stop copying ${t.name.split(' ')[0]}?</h3><div class="mut" style="text-align:center;font-size:13.5px;margin-bottom:14px">Choose what happens to the shares you bought.</div>
+  <button class="btn ghost" style="margin-bottom:10px" onclick="keepShares('${id}')">Keep my shares<br><small class="mut">Stop following. No PIN needed.</small></button>
+  <button class="btn red" onclick="sellPin('${id}')">Sell everything <span class="pinbadge">1 PIN</span><br><small>Fee on profit is taken from the proceeds.</small></button>`);}
+function keepShares(id){S.copies=S.copies.filter(x=>String(x.id)!==String(id));closeSheet();toast('Stopped. Your shares stay in your account.');S.stack=[];render();}
+function stopDone(id){const c=copyOf(id);S.wallet+=copyVal(c);S.copies=S.copies.filter(x=>String(x.id)!==String(id));openSheet(`<div style="text-align:center"><div style="font-size:40px">✅</div><h3>Sell orders placed</h3><div class="mut" style="margin:6px 0 14px;font-size:13.5px">Proceeds, less any fee on profit, go to your M-PESA as each order fills.</div></div><button class="btn" onclick="closeSheet();S.stack=[];render()">Done</button>`);S.stack=[];render();}
+function orderSheet(){const q=100,px=PRICE.COOP,v=q*px;
+  openSheet(`<div style="text-align:center"><span class="pop" style="display:inline-block;margin:0 0 6px">EXISTING SCREEN</span><h3>Sell Co-operative Bank</h3><div class="mut" style="font-size:13px">COOP · ${K2(px)} · you hold 120</div></div>
+  <div class="ln"><span>Quantity</span><b>${q}</b></div><div class="ln"><span>Value</span><b>${K2(v)}</b></div><div class="ln"><span>Fees</span><b>${K2(v*COMM+stamp(v))}</b></div>
+  ${S.isTrader?`<div class="alertc" style="background:#1d2a3a;border-color:#2b4a6a;color:#cfe6ff"><b>NEW · for copy traders</b><br>14 copiers will be asked to update tonight. Each change costs them fees, so frequent changes can cost you copiers.</div>`:''}
+  <button class="btn red">Confirm with M-PESA PIN</button>`);}
 
 /* ---------- SWARM INTELLIGENCE ---------- */
 function openSwarm(){S.range='1Y';S.stack.push({p:'swarm',fresh:true});render();}
@@ -346,9 +407,9 @@ function matchRes(mx){const l=bySkill.filter(t=>t.risk<=mx&&t.days>=200).slice(0
 /* ---------- PORTFOLIO ---------- */
 function vPort(){const seg=`<div class="seg"><button class="${S.port==='portfolio'?'on':''}" onclick="S.port='portfolio';render()">Portfolio</button><button class="${S.port==='performance'?'on':''}" onclick="S.port='performance';render()">Performance</button><button class="isnew ${S.port==='copying'?'on':''}" onclick="S.port='copying';render()" style="font-size:14px">Copying ${NEW}</button></div>`;
   if(S.port==='copying'){const inv=S.copies.reduce((s,c)=>s+c.amount,0),pv=portVal();
-    if(!S.copies.length)return seg+`<div class="card empty"><div class="ic">🪞</div><b>You’re not copying anyone yet</b><div class="mut" style="margin:8px 0 18px;font-size:14px">Pick a top-ranked trader and follow their moves automatically.</div><button class="btn sm" onclick="S.trade='copy';go('trade')">Browse traders</button></div>`;
+    if(!S.copies.length)return seg+`<div class="card empty"><div class="ic">🪞</div><b>You’re not copying anyone yet</b><div class="mut" style="margin:8px 0 18px;font-size:14px">Pick a top-ranked trader and buy the same mix in your own account.</div><button class="btn sm" onclick="S.trade='copy';go('trade')">Browse traders</button></div>`;
     return seg+`<div class="card"><div class="mut">Copying value</div><div style="font-size:30px;font-weight:700;margin:4px 0">${K2(pv)}</div><div class="${pv>=inv?'up':'dn'}">${pv>=inv?'▲':'▼'} ${K0(Math.abs(pv-inv))} · ${pct(inv?(pv/inv-1)*100:0,2)}</div></div>`+
-    S.copies.map(c=>{const t=T(c.id);return`<div class="row" onclick="manage('${c.id}')">${av(t,42)}<div class="mid"><div class="nm">${t.name}</div><div class="sub">${c.paused?'Paused':'Copying'} · stop at -${c.stop}%</div></div><div class="rowR"><b>${K0(copyVal(c))}</b><div class="${c.pl>=0?'up':'dn'}" style="font-size:12px">${pct(c.pl,2)}</div></div></div>`}).join('')+`<div class="mut" style="font-size:12px;text-align:center;margin-top:12px">Your money stays in your account. Fees only on profit above your peak.</div>`;}
+    S.copies.map(c=>{const t=T(c.id);const lo=c.pl<=-c.stop;return(c.upd?`<div class="updc"><b>${t.name.split(' ')[0]} changed her mix</b><div class="mut" style="margin:3px 0 10px">Update your copy to match. Takes one PIN.</div><button class="btn sm" onclick="updSheet('${c.id}')">Review update</button></div>`:'')+(lo?`<div class="alertc"><b>Down ${c.stop}% — your alert level</b><div class="mut" style="margin:3px 0 10px">Nothing has been sold. Choose what to do.</div><button class="btn sm red" onclick="lossSheet('${c.id}')">Review</button></div>`:'')+`<div class="row" onclick="manage('${c.id}')">${av(t,42)}<div class="mid"><div class="nm">${t.name}</div><div class="sub">${c.paused?'Not updating':'Copying'} · alert at -${c.stop}%</div></div><div class="rowR"><b>${K0(copyVal(c))}</b><div class="${c.pl>=0?'up':'dn'}" style="font-size:12px">${pct(c.pl,2)}</div></div></div>`}).join('')+`<div class="mut" style="font-size:12px;text-align:center;margin-top:12px">Shares sit in your own CDS account. You approve every trade with your PIN.</div>`;}
   const pv=portVal();
   if(S.port==='performance')return seg+`<div class="card"><div class="mut">Your portfolio value</div><div style="font-size:30px;font-weight:700;margin:4px 0">${K2(pv)}</div></div><div class="acc"><button>CDA wise<svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9b9b9b" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button></div>`;
   return seg+`<div class="banner" style="background:#16251b;color:var(--gt)">ⓘ Your portfolio breakdown</div><div class="card empty"><div class="ic">☁️</div><b>Oops!<br>You have no direct holdings, start trading now!</b><div style="margin-top:18px"><button class="btn sm" onclick="go('trade')">Start Trading</button></div></div>${S.copies.length?`<div class="card" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="S.port='copying';render()"><span>🪞 Copying ${S.copies.length} trader${S.copies.length>1?'s':''}</span><b>${K0(pv)} ›</b></div>`:''}`;}
@@ -359,29 +420,30 @@ function vAccount(){return`<div style="text-align:center;margin:30px 0 20px;posi
   <div class="menu isnew" onclick="${S.isTrader?"push({p:'tdash',fresh:true})":"push({p:'optin',fresh:true})"}"><span class="ic">🏆</span><div><b>${S.isTrader?'My copy profile':'Become a copy trader'} ${NEW}</b><small>${S.isTrader?'Copiers, earnings & rank':'Let investors copy your trades and earn'}</small></div><span class="go">›</span></div>
   <div class="menu" onclick="S.trade='copy';go('trade')"><span class="ic">🪞</span><div><b>Copy trading</b><small>${S.copies.length?'Copying '+S.copies.length+' trader'+(S.copies.length>1?'s':''):'Browse top traders'}</small></div><span class="go">›</span></div>
   <div class="menu" style="color:#ff7a5c"><span class="ic">⎋</span><b style="font-weight:500">Opt out</b></div>`;}
-function vOptin(){return`<div class="card" style="background:#16251b"><b style="font-size:16px">Earn when others follow your lead</b><div class="mut" style="font-size:13.5px;margin-top:6px">Trade as you always do. Copiers’ accounts mirror your moves automatically — you never hold or touch their money.</div></div>
-  <div class="h2">You qualify</div><div class="card" style="font-size:14.5px">${['ZiiDi account older than 90 days','30+ closed trades (you have 52)','KYC and background checks cleared','Own portfolio of KSh 100,000+ (skin in the game)'].map(x=>`<div style="padding:7px 0"><span class="up">✔</span> &nbsp;${x}</div>`).join('')}</div>
+function vOptin(){return`<div class="card" style="background:#16251b"><b style="font-size:16px">Earn when others follow your lead</b><div class="mut" style="font-size:13.5px;margin-top:6px">Trade as you always do. Copiers buy the same mix in their own accounts, each approving with their own PIN — you never hold or touch their money.</div></div>
+  <div class="h2">You qualify</div><div class="card" style="font-size:14.5px">${['Active ZiiDi account with KYC complete','30+ closed trades (you have 52)','KYC and background checks cleared','Own portfolio of KSh 100,000+ (skin in the game)'].map(x=>`<div style="padding:7px 0"><span class="up">✔</span> &nbsp;${x}</div>`).join('')}</div>
   <div class="h2">How it works</div>
-  <div class="pt"><span class="n">1</span><span>Your <b>holdings</b> and trades become visible <b>after market close</b>.</span></div>
+  <div class="pt"><span class="n">1</span><span>After 90 days you are listed. Your <b>holdings</b> and trades are then visible <b>after market close</b>.</span></div>
   <div class="pt"><span class="n">2</span><span>You earn <b>10.5–14%</b> of copiers’ profit — only when they profit.</span></div>
   <div class="pt"><span class="n">3</span><span>You climb ranks on <b>skill, not luck</b>. Higher tiers earn a higher share.</span></div>
   <div class="toggle"><span>Show my profile on the leaderboard</span><div class="sw on"></div></div>
   <label class="ck"><input type="checkbox" id="tck" onchange="$('#tgo').disabled=!this.checked"><span>I accept the <u style="color:var(--gt)" onclick="event.preventDefault();push({p:'legal',fresh:true})">Copy Trader Agreement</u>, including that I have no access to copiers’ funds.</span></label>
-  <button class="btn" id="tgo" disabled onclick="S.isTrader=true;S.stack=[{p:'tdash',fresh:true}];render();toast('You’re live on the leaderboard')">Start sharing my trades</button>`;}
+  <button class="btn" id="tgo" disabled onclick="pinSheet({title:'Become a copy trader',sub:'Confirm your agreement',amount:'No charge',note:'One PIN to confirm',ok:()=>{closeSheet();S.isTrader=true;S.stack=[{p:'tdash',fresh:true}];render();toast('You’re in. Building your record.')}})">Confirm with M-PESA PIN <span class="pinbadge">1 PIN</span></button>`;}
 function vTDash(){const s=S.tstat,t={days:s.months*30+52};
   return`<div class="card" style="text-align:center"><div class="mut" style="font-size:13px">Your league</div><div style="font-size:24px;font-weight:700;margin:4px 0;color:${TCOL.Bronze}">Bronze ◆ Rising Star</div><div class="mut" style="font-size:12.5px">Provisional rank until you reach 90 days of shared history</div></div>
+  <div class="card"><div class="lbl"><span>Building your record</span><b>Day 34 of 90</b></div><div class="meter"><i style="width:38%"></i></div><div class="mut" style="font-size:12.5px">You already have the 30 closed trades needed (52). You will be listed on the leaderboard at day 90.</div></div>
   <div class="stat3"><div><b>${s.copiers}</b><small>Copiers</small></div><div><b>${s.aum?K0(s.aum).replace('KSh ',''):'0'}</b><small>KSh copied</small></div><div><b class="up">${s.earned?K0(s.earned).replace('KSh ',''):'0'}</b><small>KSh earned</small></div></div>
   <div class="card"><div class="lbl"><span>Next league: Silver</span><b>${Math.min(100,40+s.months*20)}%</b></div><div class="meter"><i style="width:${Math.min(100,40+s.months*20)}%"></i></div><div class="mut" style="font-size:12.5px">Needs Arena Score 200+, 90 days history, and no single trade over 40% of profit.</div></div>
-  <div class="card" style="font-size:13.5px"><b>How you’re paid</b><div class="mut" style="margin-top:4px">15% carry on copiers’ profit above their peak. You receive 70% of it (10.5%), ZiiDi 30%. Paid into your ZiiDi wallet monthly.</div></div>
+  <div class="card" style="font-size:13.5px"><b>How you’re paid</b><div class="mut" style="margin-top:4px">15% carry on copiers’ profit above their peak. You receive 70% of it (10.5%), ZiiDi 30%. Paid to your M-PESA monthly.</div></div>
   <div class="toggle"><span>Accept new copiers</span><div class="sw ${S.accept?'on':''}" onclick="S.accept=!S.accept;render()"></div></div>
   <div style="margin-top:18px"><button class="btn red" onclick="S.isTrader=false;S.tstat=fresh().tstat;S.stack=[];render();toast('You’ve stopped sharing. Existing copiers are notified.')">Stop sharing my trades</button></div>`;}
 
 function vLegal(){return`<div class="legal"><p class="mut">Plain-language summary first; full terms below. Replace with counsel-approved text before launch.</p>
-  <h4>1. What “copying” means</h4><p>When you copy a trader, ZiiDi automatically places proportional orders in <b>your own account</b> whenever the trader trades. The trader gives instructions only for their own account. They have <b>no access</b> to your money, cannot withdraw, and cannot trade your account directly.</p>
+  <h4>1. What “copying” means</h4><p>When you copy a trader, ZiiDi works out the matching orders for <b>your own account</b> whenever the trader changes their mix, and places them only after you approve with your M-PESA PIN. The trader gives instructions only for their own account. They have <b>no access</b> to your money, cannot withdraw, and cannot trade your account directly.</p>
   <h4>2. No advice, real risk</h4><p>Rankings, scores and profiles are information, not financial advice or a recommendation. Investing can lose some or all of your money. Past performance does not predict future results.</p>
   <h4>3. Execution differences</h4><p>Your results can differ from the trader’s because of timing, available prices, minimum lot sizes, thinly traded shares, market hours and settlement. Orders placed when the market is closed execute at the next open.</p>
   <h4>4. Fees</h4><p>A performance fee of 15–20% applies only to net new profit above your previous peak (high-water mark). It is shared between the trader and ZiiDi. No profit, no fee. Normal brokerage and exchange charges still apply to copied trades.</p>
-  <h4>5. Your controls</h4><p>You choose the amount and an auto-stop loss limit. You can pause or stop copying at any time. Stopping does not affect positions already held unless you choose to sell.</p>
+  <h4>5. Your controls</h4><p>You choose the amount and a loss alert level. You approve every purchase and sale with your PIN. You can stop copying at any time. Stopping does not affect positions already held unless you choose to sell.</p>
   <h4>6. Trader conduct</h4><p>Traders must not manipulate markets, trade ahead of copiers, or game the ranking. Breach leads to removal, forfeiture of fees and possible legal action. Traders bear no obligation to reimburse market losses.</p>
   <h4>7. Data, regulation & law</h4><p>Your data is processed under the Data Protection Act, 2019. Copy trading is provided under the applicable Capital Markets Authority licence. Governed by the laws of Kenya.</p></div>`;}
 
@@ -392,6 +454,35 @@ function simMonth(){let r=rng(Date.now()%2147483000+1);
   toast('A month passed — results updated');render();}
 
 render();
+/* storyboard states for documentation: index.html#s=name[&bare] */
+(function(){const q=new URLSearchParams(location.hash.slice(1));if(q.has('bare'))document.body.classList.add('bare');const n=q.get('s');if(!n)return;
+ const aisha=()=>{S.copies=[{id:2,amount:8359,stop:20,pl:2.1,paused:false,b:basket(TR[2],10000)}];};
+ const st={
+  home(){go('home')},
+  traders(){S.trade='copy';go('trade')},
+  profile(){openProfile(2)},
+  holdings(){S.open.hold=true;openProfile(2);setTimeout(()=>{$('#view').scrollTop=520},50)},
+  copy(){openProfile(2);openCopy(2)},
+  basket(){openProfile(2);cp={id:2,amount:10000,stop:20,agree:true};basketSheet();document.querySelector('#sheet input').checked=true;$('#cgo2').disabled=false},
+  pin1(){openProfile(2);cp={id:2,amount:10000,stop:20,agree:true,b:basket(TR[2],10000)};doCopyPin();pinSheet({title:'Confirm copy',sub:cp.b.rows.length+' buy orders · Aisha H.',amount:K2(cp.b.total),note:'One PIN covers all orders',filled:2,ok:()=>{}})},
+  placed(){openProfile(2);cp={id:2,amount:10000,stop:20,agree:true,b:basket(TR[2],10000)};doCopy();S.stack=[{p:'profile',id:2}];render()},
+  copying(){aisha();S.port='copying';go('portfolio')},
+  update(){aisha();S.copies[0].upd=true;S.port='copying';go('portfolio')},
+  updreview(){aisha();S.port='copying';go('portfolio');updSheet(2)},
+  pin2(){aisha();S.port='copying';go('portfolio');updPin(2);pinSheet({title:'Approve update',sub:'Sell COOP, buy KEGN',amount:K2(194*PRICE.KEGN*(1+COMM)),note:'One PIN covers the sell and the buy',filled:3,ok:()=>{}})},
+  loss(){aisha();S.copies[0].pl=-20;S.port='copying';go('portfolio')},
+  lossreview(){aisha();S.copies[0].pl=-20;S.port='copying';go('portfolio');lossSheet(2)},
+  stop(){aisha();S.port='copying';go('portfolio');stopSheet(2)},
+  account(){go('account')},
+  optin(){S.tab='account';push({p:'optin',fresh:true})},
+  sellpin(){aisha();S.port='copying';go('portfolio');sellPin(2);pinSheet({title:'Sell all copied shares',sub:'4 sell orders',amount:K2(copyVal(S.copies[0])),note:'Proceeds paid to your M-PESA when the orders fill',filled:3,ok:()=>{}})},
+  pin3(){S.tab='account';push({p:'optin',fresh:true});pinSheet({title:'Become a copy trader',sub:'Confirm your agreement',amount:'No charge',note:'One PIN to confirm',filled:1,ok:()=>{}})},
+  tdash(){S.isTrader=true;S.tab='account';S.stack=[{p:'tdash',fresh:true}];render()},
+  tdash2(){S.isTrader=true;S.tstat={copiers:14,aum:1820000,earned:5300,months:2};S.tab='account';S.stack=[{p:'tdash',fresh:true}];render()},
+  order0(){go('trade');orderSheet()},
+  order(){S.isTrader=true;go('trade');orderSheet()}
+ };
+ if(st[n])st[n]();})();
 </script>
 </body>
 </html>

@@ -1,64 +1,35 @@
-# M-PESA Arena — Interactive Demo
+# M-PESA Arena on ZiiDi Trader — interactive prototype
 
-A self-contained, mobile-first prototype of the Arena app (single `index.html`, no build step).
-Open it on a phone for the full effect. Safaricom-green UI, live leaderboard, real portfolios, and the full "back a trader / Arena Auto / Swarm Intelligence" flow.
+A single-file, mobile-first prototype (`index.html`, no build step) showing how Arena plugs into ZiiDi Trader: a skill-ranked trader leaderboard and copy trading, built on ZiiDi's existing buy and sell flows. All data is simulated.
 
-## What the judges can do
-On launch they pick a role: **Investor** or **Trader**. Tap **Switch** (top-right) to jump between them.
+Live: https://mpesaarena.netlify.app/ (QR code: `qr-code.png` / `qr-code.svg`).
 
-### Investor
-- **Fund wallet** (KES 42,500) with Fund / Withdraw to M-PESA.
-- **Live leaderboard** — 10 traders re-rank in real time.
-- **Portfolio** with three views: **Overall** (aggregate performance-over-time chart), **By trader**, and **By asset class** (FX / Crypto / Futures / Shares exposure).
-- **Back a trader** → the position mirrors their cumulative performance. Tap any backing to **increase** or **withdraw** it.
-- **Trader profile**: ranking, **KYC**, portfolio, performance, back / increase / withdraw.
-- **AI Pro** subscriptions: **Insights** (KES 500 — AI sentiment advice) and **Auto** (KES 1,000 — AI invests via Swarm Intelligence).
+## Design rules
+- Reuse ZiiDi's existing flows. No trading wallet and no new external integration. Money stays in M-PESA.
+- Nothing trades without the customer's M-PESA PIN. Arena groups orders so one PIN covers a group.
+- Four touchpoints only: Home "Top traders" row, Trade > Traders, Portfolio > Copying, Account > Become a copy trader.
+
+## What you can do
+### Copier
+- Browse traders ranked by the **Arena Score** (0–1000, six measures: risk-adjusted returns, consistency, capital efficiency, decision quality, track record, diversification). The highest raw return can rank last.
+- Open a profile: score breakdown, stats, risk, holdings as of last close.
+- **Copy**: choose an amount and a loss-alert level, review the **basket** (whole shares, fees, what stays in M-PESA), accept the agreement, enter the PIN **once**.
+- **Portfolio > Copying**: when the trader changes their mix, review only the **difference** and approve with one PIN.
+- **Loss alert** at your chosen level: nothing is sold automatically; you choose whether to sell (one PIN).
+- **Stop**: keep your shares (no PIN) or sell everything (one PIN).
+- **Swarm Intelligence**: one basket weighted by the Arena Score of the top traders.
 
 ### Trader
-- **Assume the trader role** — an authenticated identity (e.g. *Mike Okoth*) that any verified M-PESA user can take on. The role can **place trades (buy/sell)** on the connected platforms but can **never withdraw** funds. (Shown so judges can see the app from a trader's point of view.)
-- **Onboarding**: fund the trading wallet with a **minimum of KES 100,000** of your own capital, then trade solo for a **90-day profile-building period** while the AI verifies your track record. **Backing unlocks only after 90 days** — a **▶ Simulate 3 months** button lets judges jump to the backed state.
-- **Dashboard**: total **AUM**, number of **backers**, 30-day return, own capital, performance broken down by asset class, and **connected-platform** status (FX / Crypto / Futures / Shares — orchestrated via API).
-- **Markets**: live **candlestick charts that move in real time**, with Buy/Sell (orders route to the connected venue and are monitored).
-- **Activity**: a live feed of every buy/sell, time-stamped.
-- **Backers**: who's backing you and how much.
-- **Earnings**: your profit split shown exactly — gross profit, investors' share, **your 17.5% carry**, and **Arena's 27.5% cut** — with a visual split bar.
+- **Account > Become a copy trader**: eligibility, agreement, one PIN to confirm.
+- Dashboard: record-building progress (day N of 90), league, copiers, copied amount, earnings paid to M-PESA monthly.
 
-## Deploy on Netlify
-This is a static site (`index.html` at the root), so there is **no build step**.
+## Storyboard states (for documentation)
+Open `index.html#s=<name>` to jump to a screen. Add `&bare` for a frameless phone. Names: `home traders profile holdings copy basket pin1 placed copying update updreview pin2 loss lossreview sellpin stop account optin pin3 tdash tdash2 order0 order`.
 
-**Via GitHub (recommended):**
-1. Push this repo to GitHub (see below).
-2. On https://app.netlify.com → **Add new site → Import an existing project → GitHub** → pick the **Arena** repo.
-3. Build command: **(leave empty)** · Publish directory: **`.`** (the included `netlify.toml` already sets this).
-4. **Deploy**. Then **Site settings → Change site name → `mpesa-arena-demo`** so the URL becomes `https://mpesa-arena-demo.netlify.app` (matches the QR).
-
-**Or drag-and-drop:** zip/extract this folder and drop it on https://app.netlify.com/drop.
-
-## Push to GitHub
-```
-cd /Users/user1/Documents/WORK/SOFTWARE/ARENA
-unzip -o MPESA_Arena_Site.zip
-git init
-git add .
-git commit -m "M-PESA Arena interactive demo"
-git branch -M main
-git remote add origin https://github.com/myk4040okothogodo/Arena.git
-git push -u origin main
-```
-If Git asks for a password, use a **Personal Access Token** (GitHub → Settings → Developer settings → Personal access tokens), not your account password.
-
-## The QR code
-`qr-code.png` / `qr-code.svg` and `scan-poster.svg/pdf` point to **https://mpesa-arena-demo.vercel.app**.
-- If you deploy under that exact project name, the QR works immediately.
-- If Vercel gives you a different URL (name taken), just send it back and a fresh QR takes seconds to regenerate.
+## Deploy
+Static site: publish the repo root. `netlify.toml` already sets this.
 
 ## Files
-- `index.html` — page markup (links the CSS and JS below)
-- `styles.css` — all styling (Safaricom-green UI)
-- `app.js` — all app logic (data model, live-leaderboard engine, back-a-trader/Auto/Swarm)
-- `qr-code.png`, `qr-code.svg` — the QR to the live demo
-- `scan-poster.svg`, `scan-poster.pdf` — print-ready A4 "scan me" poster for the judges' table
-- `vercel.json` — minimal static config
-
-> Note: because it's now split into 3 files, preview it by opening the folder in a browser
-> (or run `npx serve` in this folder). All three deploy to Vercel together with no build step.
+- `index.html` — the prototype (self-contained)
+- `qr-code.png`, `qr-code.svg` — QR code to the live site
+- `app.js`, `styles.css`, `images/`, `scan-poster.*` — assets from the earlier Arena demo, not used by the current `index.html`
