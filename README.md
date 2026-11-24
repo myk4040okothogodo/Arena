@@ -21,7 +21,7 @@ Live: https://mpesaarena.netlify.app/ (QR code: `qr-code.png` / `qr-code.svg`).
 
 ### Trader
 - **Account > Become a copy trader**: eligibility, agreement, one PIN to confirm.
-- Dashboard: record-building progress (day N of 90), league, copiers, copied amount, earnings calculated at each copier sale on realised profit, taken from proceeds, then paid to M-PESA.
+- Dashboard: record-building progress (day N of 90), league, copiers, copied amount, earnings calculated at each copier sale on realised profit, taken from proceeds, with the trader's share paid once daily after close.
 
 ## Storyboard states (for documentation)
 Open `index.html#s=<name>` to jump to a screen. Add `&bare` for a frameless phone. Names: `home traders profile holdings copy basket pin1 placed copying update updreview pin2 loss lossreview sellpin stop account optin pin3 tdash tdash2 order0 order`.
