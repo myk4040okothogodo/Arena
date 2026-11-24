@@ -345,7 +345,7 @@ function basketSheet(){const t=T(cp.id),b=basket(t,cp.amount);cp.b=b;cp.fromBask
   <div class="ln"><span><b>Total debited from M-PESA</b></span><b style="color:var(--gt)">${K2(b.total)}</b></div>
   <div class="card" style="background:#232323;padding:12px;font-size:13px;margin-top:10px">Stays in your M-PESA: <b>${K2(b.keep)}</b> — ${t.name.split(' ')[0]}’s ${b.cashw}% cash weight and whole-share rounding. Nothing is held back from you.</div>
   <label class="ck"><input type="checkbox" onchange="cp.agree=this.checked;$('#cgo2').disabled=!this.checked"><span>I understand I can lose money, rankings aren’t a guarantee, my fills may differ, and I accept the <u style="color:var(--gt);cursor:pointer" onclick="event.preventDefault();event.stopPropagation();cp.fromBasket=true;closeSheet();push({p:'legal',fresh:true})">Copier Agreement</u>.</span></label>
-  <button class="btn" id="cgo2" disabled onclick="doCopyPin()">Confirm with M-PESA PIN <span class="pinbadge">1 PIN</span></button>`);}
+  <button class="btn" id="cgo2" disabled onclick="doCopyPin()">Confirm with M-PESA PIN</button>`);}
 function doCopyPin(){const t=T(cp.id),b=cp.b;pinSheet({title:'Confirm copy',sub:`${b.rows.length} buy orders · ${t.name}`,amount:K2(b.total),note:'One PIN covers all orders',ok:doCopy});}
 function doCopy(){const t=T(cp.id),b=cp.b;S.wallet-=b.total;S.copies.push({id:cp.id,amount:b.total,stop:cp.stop,pl:0,paused:false,b});
   openSheet(`<div style="text-align:center"><div style="font-size:40px">✅</div><h3>${b.rows.length} orders placed</h3><div class="mut" style="margin:6px 0 12px;font-size:13.5px">Market is closed. They will run when it opens. You’ll get an SMS for each fill.</div></div>${legRows(b,'Queued')}
@@ -358,11 +358,11 @@ function updSheet(id){const c=copyOf(id),d=updDelta(c),sv=d.sell.q*d.sell.px,bv=
   <div class="ln"><span>Everything else<small>SCOM, EABL, BAT unchanged</small></span><b class="mut">No trade</b></div>
   <div class="ln"><span>Fees</span><b>${K2(fee)}</b></div>
   <div class="card" style="background:#232323;padding:12px;font-size:13px;margin-top:10px">Sale proceeds return to your M-PESA. The purchase is debited now.</div>
-  <button class="btn" onclick="updPin('${id}')">Approve with M-PESA PIN <span class="pinbadge">1 PIN</span></button><button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Not now</button>`);}
+  <button class="btn" onclick="updPin('${id}')">Approve with M-PESA PIN</button><button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Not now</button>`);}
 function updPin(id){const c=copyOf(id),d=updDelta(c);pinSheet({title:'Approve update',sub:`Sell ${d.sell.k}, buy ${d.buy.k}`,amount:K2(d.buy.q*d.buy.px*(1+COMM)),note:'One PIN covers the sell and the buy',ok:()=>{c.upd=false;openSheet(`<div style="text-align:center"><div style="font-size:40px">✅</div><h3>Update placed</h3><div class="mut" style="margin:6px 0 14px;font-size:13.5px">2 orders queued for the next open.</div></div><button class="btn" onclick="closeSheet();render()">Done</button>`);render();}});}
 function lossSheet(id){const c=copyOf(id),t=T(id);
   openSheet(`<div style="text-align:center"><div style="font-size:38px">⚠️</div><h3>Your copy is down ${c.stop}%</h3><div class="mut" style="margin:6px 0 14px;font-size:13.5px">You asked us to alert you at -${c.stop}%. Selling needs your PIN, so nothing has been sold.</div></div>
-  <button class="btn red" onclick="sellPin('${id}')">Review and sell <span class="pinbadge">1 PIN</span></button><button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Keep holding</button>`);}
+  <button class="btn red" onclick="sellPin('${id}')">Review and sell</button><button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Keep holding</button>`);}
 function sellPin(id){const c=copyOf(id),t=T(id);pinSheet({title:'Sell all copied shares',sub:`${c.b?c.b.rows.length:4} sell orders`,amount:K2(copyVal(c)),note:'Proceeds paid to your M-PESA when the orders fill',ok:()=>stopDone(id)});}
 function manage(id){const c=copyOf(id),t=T(id),q=`'${id}'`,sw=id==='swarm';
   openSheet(`<h3>${t.name}</h3><div class="mut" style="text-align:center;margin-bottom:12px">Value ${K0(copyVal(c))} · <span class="${c.pl>=0?'up':'dn'}">${pct(c.pl,2)}</span> · alert at -${c.stop}%</div>
@@ -372,7 +372,7 @@ function manage(id){const c=copyOf(id),t=T(id),q=`'${id}'`,sw=id==='swarm';
 function stopSheet(id){const t=T(id);
   openSheet(`<h3>Stop copying ${t.name.split(' ')[0]}?</h3><div class="mut" style="text-align:center;font-size:13.5px;margin-bottom:14px">Choose what happens to the shares you bought.</div>
   <button class="btn ghost" style="margin-bottom:10px" onclick="keepShares('${id}')">Keep my shares<br><small class="mut">Stop following. No PIN needed.</small></button>
-  <button class="btn red" onclick="sellPin('${id}')">Sell everything <span class="pinbadge">1 PIN</span><br><small>Fee on profit is taken from the proceeds.</small></button>`);}
+  <button class="btn red" onclick="sellPin('${id}')">Sell everything<br><small>Fee on profit is taken from the proceeds.</small></button>`);}
 function keepShares(id){S.copies=S.copies.filter(x=>String(x.id)!==String(id));closeSheet();toast('Stopped. Your shares stay in your account.');S.stack=[];render();}
 function stopDone(id){const c=copyOf(id);S.wallet+=copyVal(c);S.copies=S.copies.filter(x=>String(x.id)!==String(id));openSheet(`<div style="text-align:center"><div style="font-size:40px">✅</div><h3>Sell orders placed</h3><div class="mut" style="margin:6px 0 14px;font-size:13.5px">Proceeds, less any fee on profit, go to your M-PESA as each order fills.</div></div><button class="btn" onclick="closeSheet();S.stack=[];render()">Done</button>`);S.stack=[];render();}
 function orderSheet(){const q=100,px=PRICE.COOP,v=q*px;
@@ -428,7 +428,7 @@ function vOptin(){return`<div class="card" style="background:#16251b"><b style="
   <div class="pt"><span class="n">3</span><span>You climb ranks on <b>skill, not luck</b>. Higher tiers earn a higher share.</span></div>
   <div class="toggle"><span>Show my profile on the leaderboard</span><div class="sw on"></div></div>
   <label class="ck"><input type="checkbox" id="tck" ${S.tck?'checked':''} onchange="S.tck=this.checked;$('#tgo').disabled=!this.checked"><span>I accept the <u style="color:var(--gt);cursor:pointer" onclick="event.preventDefault();event.stopPropagation();push({p:'tlegal',fresh:true})">Copy Trader Agreement</u>, including that I have no access to copiers’ funds.</span></label>
-  <button class="btn" id="tgo" ${S.tck?'':'disabled'} onclick="pinSheet({title:'Become a copy trader',sub:'Confirm your agreement',amount:'No charge',note:'One PIN to confirm',ok:()=>{closeSheet();S.isTrader=true;S.stack=[{p:'tdash',fresh:true}];render();toast('You’re in. Building your record.')}})">Confirm with M-PESA PIN <span class="pinbadge">1 PIN</span></button>`;}
+  <button class="btn" id="tgo" ${S.tck?'':'disabled'} onclick="pinSheet({title:'Become a copy trader',sub:'Confirm your agreement',amount:'No charge',note:'One PIN to confirm',ok:()=>{closeSheet();S.isTrader=true;S.stack=[{p:'tdash',fresh:true}];render();toast('You’re in. Building your record.')}})">Confirm with M-PESA PIN</button>`;}
 function vTDash(){const s=S.tstat,t={days:s.months*30+52};
   return`<div class="card" style="text-align:center"><div class="mut" style="font-size:13px">Your league</div><div style="font-size:24px;font-weight:700;margin:4px 0;color:${TCOL.Bronze}">Bronze ◆ Rising Star</div><div class="mut" style="font-size:12.5px">Provisional rank until you reach 90 days of shared history</div></div>
   <div class="card"><div class="lbl"><span>Building your record</span><b>Day 34 of 90</b></div><div class="meter"><i style="width:38%"></i></div><div class="mut" style="font-size:12.5px">You already have the 30 closed trades needed (52). You will be listed on the leaderboard at day 90.</div></div>
