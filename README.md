@@ -21,6 +21,7 @@ Live: https://mpesaarena.netlify.app/ (QR code: `qr-code.png` / `qr-code.svg`).
 
 ### Trader
 - **Account > Become a copy trader**: eligibility, agreement, one PIN to confirm.
+- One role at a time: a copy trader cannot copy, and a copier cannot become a trader (blocking screens in both directions).
 - Dashboard: record-building progress (day N of 90), league, trend charts (copiers, earnings, copied capital; Rising, Flat or Falling), copiers, copied amount, earnings calculated at each copier sale on realised profit, taken from proceeds, with the trader's share paid once daily after close.
 
 ## Storyboard states (for documentation)
