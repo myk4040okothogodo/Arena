@@ -338,13 +338,13 @@ function copySheet(){const t=T(cp.id),c=carry(t),sw=cp.id==='swarm';
   <div class="card" style="background:#232323;padding:13px;font-size:13px">Fee: <b>${Math.round(c*100)}% of profit only</b>. You keep ${Math.round((1-c)*100)}%. ${sw?`The Swarm follows the Arena-Score-weighted consensus of ${SWN} top traders, so no single trader decides.`:`Next you will see exactly which shares ${t.name.split(' ')[0]}’s mix turns into at today’s prices.`}</div>
   <button class="btn" id="cgo" onclick="basketSheet()">See my basket</button>`);cpChk();}
 function cpChk(){const b=$('#cgo');if(!b)return;b.disabled=!(cp.amount>=5000&&cp.amount<=S.wallet);}
-function basketSheet(){const t=T(cp.id),b=basket(t,cp.amount);cp.b=b;
+function basketSheet(){const t=T(cp.id),b=basket(t,cp.amount);cp.b=b;cp.fromBasket=false;
   openSheet(`<h3>Your basket</h3><div class="mut" style="text-align:center;font-size:13px;margin-bottom:10px">${t.name}’s mix as whole shares at last close</div>${legRows(b)}
   <div class="ln"><span>Shares<small>${b.rows.length} orders in your own CDS account</small></span><b>${K2(b.sh)}</b></div>
   <div class="ln"><span>Brokerage, levies &amp; stamp duty<small>ZiiDi’s standard rates</small></span><b>${K2(b.fees)}</b></div>
   <div class="ln"><span><b>Total debited from M-PESA</b></span><b style="color:var(--gt)">${K2(b.total)}</b></div>
   <div class="card" style="background:#232323;padding:12px;font-size:13px;margin-top:10px">Stays in your M-PESA: <b>${K2(b.keep)}</b> — ${t.name.split(' ')[0]}’s ${b.cashw}% cash weight and whole-share rounding. Nothing is held back from you.</div>
-  <label class="ck"><input type="checkbox" onchange="cp.agree=this.checked;$('#cgo2').disabled=!this.checked"><span>I understand I can lose money, rankings aren’t a guarantee, my fills may differ, and I accept the <u style="color:var(--gt)">Copy Trading Agreement</u>.</span></label>
+  <label class="ck"><input type="checkbox" onchange="cp.agree=this.checked;$('#cgo2').disabled=!this.checked"><span>I understand I can lose money, rankings aren’t a guarantee, my fills may differ, and I accept the <u style="color:var(--gt);cursor:pointer" onclick="event.preventDefault();event.stopPropagation();cp.fromBasket=true;closeSheet();push({p:'legal',fresh:true})">Copy Trading Agreement</u>.</span></label>
   <button class="btn" id="cgo2" disabled onclick="doCopyPin()">Confirm with M-PESA PIN <span class="pinbadge">1 PIN</span></button>`);}
 function doCopyPin(){const t=T(cp.id),b=cp.b;pinSheet({title:'Confirm copy',sub:`${b.rows.length} buy orders · ${t.name}`,amount:K2(b.total),note:'One PIN covers all orders',ok:doCopy});}
 function doCopy(){const t=T(cp.id),b=cp.b;S.wallet-=b.total;S.copies.push({id:cp.id,amount:b.total,stop:cp.stop,pl:0,paused:false,b});
@@ -445,7 +445,7 @@ function vLegal(){return`<div class="legal"><p class="mut">Plain-language summar
   <h4>4. Fees</h4><p>A performance fee of 15–20% applies only to net new profit above your previous peak (high-water mark). It is shared between the trader and ZiiDi. No profit, no fee. Normal brokerage and exchange charges still apply to copied trades.</p>
   <h4>5. Your controls</h4><p>You choose the amount and a loss alert level. You approve every purchase and sale with your PIN. You can stop copying at any time. Stopping does not affect positions already held unless you choose to sell.</p>
   <h4>6. Trader conduct</h4><p>Traders must not manipulate markets, trade ahead of copiers, or game the ranking. Breach leads to removal, forfeiture of fees and possible legal action. Traders bear no obligation to reimburse market losses.</p>
-  <h4>7. Data, regulation & law</h4><p>Your data is processed under the Data Protection Act, 2019. Copy trading is provided under the applicable Capital Markets Authority licence. Governed by the laws of Kenya.</p></div>`;}
+  <h4>7. Data, regulation & law</h4><p>Your data is processed under the Data Protection Act, 2019. Copy trading is provided under the applicable Capital Markets Authority licence. Governed by the laws of Kenya.</p></div>${cp&&cp.fromBasket?`<button class="btn" style="margin-top:16px" onclick="back();basketSheet()">Back to my basket</button>`:''}`;}
 
 /* ---------- demo: simulate a month ---------- */
 function simMonth(){let r=rng(Date.now()%2147483000+1);
