@@ -242,11 +242,11 @@ function render(){
   const top=S.stack[S.stack.length-1];
   const titles={home:'ZiiDi Trader',trade:'Trade',portfolio:'ZiiDi Trader',account:'ZiiDi Trader'};
   let title=titles[S.tab],bk=false;
-  if(top){bk=true;title=top.p==='profile'?'Trader profile':top.p==='swarm'?'Swarm Intelligence':top.p==='legal'?'Copy agreement':top.p==='optin'?'Become a copy trader':'My copy profile';}
+  if(top){bk=true;title=top.p==='profile'?'Trader profile':top.p==='swarm'?'Swarm Intelligence':top.p==='legal'?'Copy agreement':top.p==='tlegal'?'Copy trader agreement':top.p==='optin'?'Become a copy trader':'My copy profile';}
   $('#hdr').innerHTML=`<h1>${bk?'<button class="bk" onclick="back()">‹</button>':''}${title}</h1><div class="capsule">•••<i></i>⊗</div>`;
   $('#nav').innerHTML=['home','trade','portfolio','account'].map(t=>`<button class="${S.tab===t?'on':''}" onclick="go('${t}')"><svg viewBox="0 0 24 24">${ICONS[t]}</svg>${t[0].toUpperCase()+t.slice(1)}</button>`).join('');
   const v=$('#view'),y=v.scrollTop;
-  v.innerHTML=top?(top.p==='profile'?vProfile(top.id):top.p==='swarm'?vSwarm():top.p==='legal'?vLegal():top.p==='optin'?vOptin():vTDash()):({home:vHome,trade:vTrade,portfolio:vPort,account:vAccount})[S.tab]();
+  v.innerHTML=top?(top.p==='profile'?vProfile(top.id):top.p==='swarm'?vSwarm():top.p==='legal'?vLegal():top.p==='tlegal'?vTLegal():top.p==='optin'?vOptin():vTDash()):({home:vHome,trade:vTrade,portfolio:vPort,account:vAccount})[S.tab]();
   v.scrollTop=top&&top.fresh?0:y;if(top)top.fresh=false;
 }
 
@@ -427,8 +427,8 @@ function vOptin(){return`<div class="card" style="background:#16251b"><b style="
   <div class="pt"><span class="n">2</span><span>You earn <b>10.5–14%</b> of copiers’ profit — only when they profit.</span></div>
   <div class="pt"><span class="n">3</span><span>You climb ranks on <b>skill, not luck</b>. Higher tiers earn a higher share.</span></div>
   <div class="toggle"><span>Show my profile on the leaderboard</span><div class="sw on"></div></div>
-  <label class="ck"><input type="checkbox" id="tck" onchange="$('#tgo').disabled=!this.checked"><span>I accept the <u style="color:var(--gt)" onclick="event.preventDefault();push({p:'legal',fresh:true})">Copy Trader Agreement</u>, including that I have no access to copiers’ funds.</span></label>
-  <button class="btn" id="tgo" disabled onclick="pinSheet({title:'Become a copy trader',sub:'Confirm your agreement',amount:'No charge',note:'One PIN to confirm',ok:()=>{closeSheet();S.isTrader=true;S.stack=[{p:'tdash',fresh:true}];render();toast('You’re in. Building your record.')}})">Confirm with M-PESA PIN <span class="pinbadge">1 PIN</span></button>`;}
+  <label class="ck"><input type="checkbox" id="tck" ${S.tck?'checked':''} onchange="S.tck=this.checked;$('#tgo').disabled=!this.checked"><span>I accept the <u style="color:var(--gt);cursor:pointer" onclick="event.preventDefault();event.stopPropagation();push({p:'tlegal',fresh:true})">Copy Trader Agreement</u>, including that I have no access to copiers’ funds.</span></label>
+  <button class="btn" id="tgo" ${S.tck?'':'disabled'} onclick="pinSheet({title:'Become a copy trader',sub:'Confirm your agreement',amount:'No charge',note:'One PIN to confirm',ok:()=>{closeSheet();S.isTrader=true;S.stack=[{p:'tdash',fresh:true}];render();toast('You’re in. Building your record.')}})">Confirm with M-PESA PIN <span class="pinbadge">1 PIN</span></button>`;}
 function vTDash(){const s=S.tstat,t={days:s.months*30+52};
   return`<div class="card" style="text-align:center"><div class="mut" style="font-size:13px">Your league</div><div style="font-size:24px;font-weight:700;margin:4px 0;color:${TCOL.Bronze}">Bronze ◆ Rising Star</div><div class="mut" style="font-size:12.5px">Provisional rank until you reach 90 days of shared history</div></div>
   <div class="card"><div class="lbl"><span>Building your record</span><b>Day 34 of 90</b></div><div class="meter"><i style="width:38%"></i></div><div class="mut" style="font-size:12.5px">You already have the 30 closed trades needed (52). You will be listed on the leaderboard at day 90.</div></div>
@@ -438,6 +438,16 @@ function vTDash(){const s=S.tstat,t={days:s.months*30+52};
   <div class="toggle"><span>Accept new copiers</span><div class="sw ${S.accept?'on':''}" onclick="S.accept=!S.accept;render()"></div></div>
   <div style="margin-top:18px"><button class="btn red" onclick="S.isTrader=false;S.tstat=fresh().tstat;S.stack=[];render();toast('You’ve stopped sharing. Existing copiers are notified.')">Stop sharing my trades</button></div>`;}
 
+function vTLegal(){return`<div class="legal"><p class="mut">Plain-language summary first; full terms below. Replace with counsel-approved text before launch.</p>
+  <h4>1. What being copied means</h4><p>When you become a copy trader, investors on ZiiDi can choose to follow your portfolio. When you change your holdings, ZiiDi works out the matching orders for each follower and places them in <b>their own accounts</b>, only after they approve with their own M-PESA PIN. You give instructions only for your own account.</p>
+  <h4>2. No access to followers’ money</h4><p>You cannot see, hold, move or withdraw any follower’s funds, and you cannot place orders in their accounts. Their shares stay in their own CDS accounts.</p>
+  <h4>3. What others can see</h4><p>Once you are listed, your Arena Score, statistics, holdings and recent trades are visible to other ZiiDi customers <b>after market close</b>. Your name is shown as it appears on your profile. Follower names are never shown to you.</p>
+  <h4>4. Getting listed</h4><p>You are listed after 90 days of shared trading history and at least 30 closed trades, with KYC complete and your own portfolio of at least KSh 100,000. Your first 90 days build your record. Eligibility can be reviewed at any time.</p>
+  <h4>5. Your earnings</h4><p>You earn a share of the performance fee that followers pay on their profit, only when they make a profit. The fee is 15–20% depending on your tier, and you receive 70% of it. The remainder goes to ZiiDi. Earnings are paid to your M-PESA monthly. If followers do not profit, you earn nothing.</p>
+  <h4>6. Followers’ results can differ from yours</h4><p>Followers’ timing, prices, fees and fills can differ from yours. They may update their copy later than you trade, or choose not to update. You are not responsible for followers’ gains or losses and do not guarantee any result.</p>
+  <h4>7. Your conduct</h4><p>You must not manipulate prices, trade ahead of followers, coordinate trades to game your ranking, or trade on inside information. Breach can lead to removal from the leaderboard, loss of unpaid earnings and referral to the regulator.</p>
+  <h4>8. Changes and leaving</h4><p>Frequent changes cost followers brokerage and fees, so you will see a notice before you trade. You can stop being a copy trader at any time. Followers are told and keep the shares they hold. You cannot leave ZiiDi while you hold shares.</p>
+  <h4>9. Data, regulation & law</h4><p>Your data is processed under the Data Protection Act, 2019. Copy trading is provided under the applicable Capital Markets Authority licence. Governed by the laws of Kenya.</p></div>`;}
 function vLegal(){return`<div class="legal"><p class="mut">Plain-language summary first; full terms below. Replace with counsel-approved text before launch.</p>
   <h4>1. What “copying” means</h4><p>When you copy a trader, ZiiDi works out the matching orders for <b>your own account</b> whenever the trader changes their mix, and places them only after you approve with your M-PESA PIN. The trader gives instructions only for their own account. They have <b>no access</b> to your money, cannot withdraw, and cannot trade your account directly.</p>
   <h4>2. No advice, real risk</h4><p>Rankings, scores and profiles are information, not financial advice or a recommendation. Investing can lose some or all of your money. Past performance does not predict future results.</p>
